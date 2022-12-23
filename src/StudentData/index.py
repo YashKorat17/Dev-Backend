@@ -72,7 +72,5 @@ async def studentdata_annual_payment(year:SearchPremium, db: Database = Depends(
 
 @studentdata.get("/batch")
 async def studentdata_batch(db: Database = Depends(get_db)):
-    # return list(db.get_student_order_by_batch_no())
-    return {
-        'batch':"A01"
-    }
+    # return list(db.get_student_order_by_batch_code_A())
+    return db.get_student_order_by_batch_code_A()

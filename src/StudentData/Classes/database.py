@@ -77,18 +77,41 @@ class Database(Database):
             }
         ])
     
-    # get data order by batch no and count
-    def get_student_order_by_batch_no(self):
-        return self.student.aggregate([
-            {
-                "$filter":{
-                
+    # get data order by batch code A and count
+    def get_student_order_by_batch_code_A(self):
+        letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        for i in ["A","B"]:
+            data = self.student.aggregate([
+                {
+                    "$match": {
+                        "batch_code": {"$regex": i, "$options": "i"}
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": "$batch_code",
+                        "count": {"$sum": 1}
+                    }
+                },
+                {
+                    "$sort": {
+                        "_id": 1
+                    }
                 }
-            },
-            
-            {
-                "$sort": {
-                    "batch_code": 1
-                }
-            },
-        ])
+            ], allowDiskUse=True)
+            for i in data:
+                if i["count"] <= 200:
+                    if i["count"] < 10:
+                        return {
+                            "batch": i["_id"]+"0"+str(i["count"]+1),
+                        }
+                    else:
+                        return {
+                            "batch": i["_id"]+str(i["count"]+1),
+                        }
+
+    # get List all batch no for batch code A
+    def get_student_batch_no(self,batch_code):
+        return self.student.find({"batch_code": {"$regex": batch_code, "$options": "i"}})
+    
+    
